@@ -33,6 +33,8 @@ def train_parser():
                         help='url used to set up distributed training')
     parser.add_argument('--distributed', action='store_true',
                         help='whether to use distributed training')
+    parser.add_argument('--subset', action='store_true',
+                        help='Train on small subset of scenarios for quick debugging/dry-run')
     opt = parser.parse_args()
     return opt
 
@@ -48,14 +50,15 @@ def main():
     print('-----------------Dataset Building------------------')
     opencood_train_dataset = build_dataset(hypes, visualize=False, train=True)
     opencood_validate_dataset = build_dataset(hypes, visualize=False, train=False)
-    # breakpoint()
-    # # Create a small subset of scenario_folders for both datasets
-    opencood_train_dataset.scenario_folders = opencood_train_dataset.scenario_folders[:4]
-    opencood_validate_dataset.scenario_folders = opencood_validate_dataset.scenario_folders[:2]
     
-    # Reinitialize datasets with new scenario folders
-    opencood_train_dataset.reinitialize()
-    opencood_validate_dataset.reinitialize()
+    if opt.subset:
+        print('[INFO] Running in SUBSET debug mode (4 train scenarios, 2 val scenarios)...')
+        opencood_train_dataset.scenario_folders = opencood_train_dataset.scenario_folders[:4]
+        opencood_validate_dataset.scenario_folders = opencood_validate_dataset.scenario_folders[:2]
+        opencood_train_dataset.reinitialize()
+        opencood_validate_dataset.reinitialize()
+    else:
+        print(f'[INFO] Running on FULL dataset: {len(opencood_train_dataset.scenario_folders)} train scenarios, {len(opencood_validate_dataset.scenario_folders)} val scenarios.')
 
     # Setup distributed sampling
     if opt.distributed:

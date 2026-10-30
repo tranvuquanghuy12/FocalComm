@@ -44,6 +44,7 @@ slurm-*.out
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb
+!FocalComm_Kaggle_Training.ipynb
 
 # Environments
 .env
