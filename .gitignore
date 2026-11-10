@@ -45,6 +45,8 @@ slurm-*.out
 .ipynb_checkpoints
 *.ipynb
 !FocalComm_Kaggle_Training.ipynb
+!FocalComm_Kaggle_Baseline.ipynb
+!FocalComm_Kaggle_Ours.ipynb
 
 # Environments
 .env
