@@ -35,18 +35,20 @@ def load_saved_model(saved_path, model, epoch=None):
     assert os.path.exists(saved_path), '{} not found'.format(saved_path)
 
     def findLastCheckpoint(save_dir):
-        if os.path.exists(os.path.join(saved_path, 'latest.pth')):
+        if os.path.exists(os.path.join(save_dir, 'latest.pth')):
             return 10000
+        if os.path.exists(os.path.join(save_dir, 'net_epoch_best.pth')):
+            return 9999
         file_list = glob.glob(os.path.join(save_dir, '*epoch*.pth'))
         if file_list:
             epochs_exist = []
             for file_ in file_list:
-                result = re.findall(".*epoch(.*).pth.*", file_)
-                epochs_exist.append(int(result[0]))
-            initial_epoch_ = max(epochs_exist)
-        else:
-            initial_epoch_ = 0
-        return initial_epoch_
+                result = re.findall(r".*epoch(\d+)\.pth.*", file_)
+                if result:
+                    epochs_exist.append(int(result[0]))
+            if epochs_exist:
+                return max(epochs_exist)
+        return 0
 
     if epoch is None:
         initial_epoch = findLastCheckpoint(saved_path)
@@ -54,10 +56,12 @@ def load_saved_model(saved_path, model, epoch=None):
         initial_epoch = int(epoch)
 
     if initial_epoch > 0:
-        model_file = os.path.join(saved_path,
-                         'net_epoch%d.pth' % initial_epoch) \
-            if initial_epoch != 10000 else os.path.join(saved_path,
-                         'latest.pth')
+        if initial_epoch == 10000:
+            model_file = os.path.join(saved_path, 'latest.pth')
+        elif initial_epoch == 9999:
+            model_file = os.path.join(saved_path, 'net_epoch_best.pth')
+        else:
+            model_file = os.path.join(saved_path, 'net_epoch%d.pth' % initial_epoch)
         print('resuming by loading epoch %d' % initial_epoch)
         
         # Load checkpoint

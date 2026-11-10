@@ -316,3 +316,4 @@ class FocalCommOurs(nn.Module):
         preds_dict['record_len'] = record_len
         self.sample_id += 1
         return preds_dict
+

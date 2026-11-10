@@ -27,6 +27,8 @@ def train_parser():
                         help='data generation yaml file needed ')
     parser.add_argument('--model_dir', default='',
                         help='Continued training path')
+    parser.add_argument('--pretrained_model', default='',
+                        help='Pretrained model directory for warm-start / fine-tuning')
     parser.add_argument("--half", action='store_true',
                         help="whether train with half precision.")
     parser.add_argument('--dist_url', default='env://',
@@ -109,7 +111,11 @@ def main():
         saved_path = opt.model_dir
         init_epoch, model = train_utils.load_saved_model(saved_path,
                                                          model)
-
+    elif opt.pretrained_model:
+        print(f"Loading pretrained weights for warm-start from: {opt.pretrained_model}")
+        _, model = train_utils.load_saved_model(opt.pretrained_model, model)
+        init_epoch = 0
+        saved_path = train_utils.setup_train(hypes)
     else:
         init_epoch = 0
         # if we train the model from scratch, we need to create a folder
